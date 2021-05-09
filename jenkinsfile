@@ -1,0 +1,22 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('pull code') {
+            steps {
+               checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: '6f1dcce6-38c8-448c-ab68-4d48732820b5', url: 'git@github.com:HangStarLi/webDemo.git']]])
+            }
+        }
+        stage('build project') {
+            steps {
+                sh 'mvn clean package'
+                sh 'pwd'
+            }
+        }
+        stage('deploy to container') {
+            steps {
+                deploy adapters: [tomcat8(credentialsId: 'c52abdd0-33fa-48c1-99de-e0c7d44a1c94', path: '', url: 'http://192.168.10.102:8080')], contextPath: null, war: 'target/*.war'
+            }
+        }
+    }
+}
